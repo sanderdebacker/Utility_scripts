@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#replace file
+cp TREEFILE temp.astral.tree
+
+while read line; do
+	IFSb=$IFS
+	IFS="	"
+	read oldname newname newline <<< $line
+	echo "Replacing $oldname with $newname ..."
+	IFS=$IFSb
+	sed --in-place "s/$oldname/$newname/g" temp.astral.tree
+done < column_names.txt
+
+cat temp.astral.tree | tr -d '\r\n' > TREEFILE
+rm -r temp.astral.tree
