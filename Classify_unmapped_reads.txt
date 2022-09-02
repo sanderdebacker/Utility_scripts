@@ -1,0 +1,25 @@
+#!/bin/bash
+
+for file in ./*GBprocesS.fastq.gz; do
+	bwa mem -t 8 Reference/REF.fasta $file > "${file%.GBprocesS.fastq.gz}.sam"
+done
+
+for file in ./*sam; do
+		java -jar picard.jar AddOrReplaceReadGroups -I $file -O "${file%.sam}.bam" --CREATE_INDEX -SO coordinate -RGLB "${file%.sam}" -RGPL illumina -RGPU run -RGSM "${file%.sam}" -RGID "${file%.sam}"
+done
+
+for file in ./*bam; do
+    samtools fastq -f 4 $file > "${file%.bam}.unmapped.fastq"
+done
+
+for file in ./*unmapped.fastq; do
+    bgzip $file
+done
+
+for file in ./*unmapped.fastq.gz; do
+    kraken2 --db ./Database --gzip-compressed --output "${file%.unmapped.fastq.gz}.kraken" $file
+done
+
+for file in ./*kraken; do
+	rcf -n Database/ -k $file
+done
