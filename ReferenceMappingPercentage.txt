@@ -1,7 +1,17 @@
 #!/bin/bash
 
+# REPLACE EXTENSIONS ON LINE 6-7
+# FILL IN REFERENCE ON LINE 8
+# SPECIFY LOCATION OF PICARD.JAR ON LINE 10
+# SPECIFY LOCATION OF OUTPUT ON LINE 16
+
 for file in ./*GBprocesS.fastq.gz; do
     SAMPLE=`basename $file .GBprocesS.fastq.gz`
     bwa mem REFERENCE $file -o "$SAMPLE".sam
     java -jar ../Dependencies/picard.jar AddOrReplaceReadGroups -I "$SAMPLE".sam -O "$SAMPLE".bam --CREATE_INDEX -SO coordinate -RGLB "$SAMPLE" -RGPL illumina -RGPU run -RGSM "$SAMPLE" -RGID "$SAMPLE"
     
+    # Read mapping statistics
+	NumberOfMappedReads=$(samtools idxstats "$SAMPLE".bam | cut -f3 | paste -sd+ | bc)
+    TotalReads=$(samtools view -c "$SAMPLE".bam)
+	echo -e ""$SAMPLE"\t"$NumberOfMappedReads"\t"$TotalReads"" >> mapping-stats.txt
+done
