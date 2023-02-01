@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for file in ./*GBprocesS.fastq.gz; do
+    SAMPLE=`basename $file .GBprocesS.fastq.gz`
+    bwa mem REFERENCE $file -o "$SAMPLE".sam
+    java -jar ../Dependencies/picard.jar AddOrReplaceReadGroups -I "$SAMPLE".sam -O "$SAMPLE".bam --CREATE_INDEX -SO coordinate -RGLB "$SAMPLE" -RGPL illumina -RGPU run -RGSM "$SAMPLE" -RGID "$SAMPLE"
+    
