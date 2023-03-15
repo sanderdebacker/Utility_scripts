@@ -1,0 +1,5 @@
+sed 's/^>/\x00&/' file  | sort -z | tr -d '\0'
+
+# Separates fasta blocks (begin with >) by a null byte
+# Then uses --zero-terminated to sort the records lexicographically
+# tr removes the null bytes
